@@ -15,9 +15,46 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="WeatherTrackerX — Live Weather Dashboard for Any City" />
     <meta name="twitter:description" content="Track live weather forecasts and historical data for any city. WeatherTrackerX is a fast, free weather dashboard built with React." />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://weathertrackerx-pranav.vercel.app/#organization",
+          "name": "WeatherTrackerX",
+          "url": "https://weathertrackerx-pranav.vercel.app/",
+          "description": "Live weather dashboard for forecasts and historical data for any city."
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://weathertrackerx-pranav.vercel.app/#webapp",
+          "name": "WeatherTrackerX",
+          "url": "https://weathertrackerx-pranav.vercel.app/",
+          "description": "Track live weather forecasts and historical data for any city. Fast, free weather dashboard built with React.",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "publisher": {
+            "@id": "https://weathertrackerx-pranav.vercel.app/#organization"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main>
+        <h1>WeatherTrackerX — Live Weather Dashboard for Any City</h1>
+        <p>Track live weather forecasts and historical data for any city. WeatherTrackerX is a fast, free weather dashboard built with React. Enable JavaScript to use the interactive dashboard.</p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
