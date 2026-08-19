@@ -9,6 +9,8 @@ import type {
 } from '@/lib/types';
 import WeatherDisplay from '@/components/WeatherDisplay';
 
+const SITE_URL = 'https://weathertrackerx-pranav.vercel.app';
+
 /**
  * Incremental Static Regeneration — revalidate every 30 minutes (1800s).
  *
@@ -155,6 +157,94 @@ async function fetchWeather(cityName: string): Promise<WeatherFetchResult> {
   }
 }
 
+/**
+ * Build page-level JSON-LD for city weather routes.
+ * Only includes real fields when weather data is present (no fabricated
+ * temperatures, ratings, or reviews).
+ */
+function buildCityJsonLd(
+  cityName: string,
+  slug: string,
+  weather: WeatherData | null,
+) {
+  const pageUrl = `${SITE_URL}/weather/${slug}`;
+
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}/#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: `Weather in ${cityName}`,
+          item: pageUrl,
+        },
+      ],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${pageUrl}/#webpage`,
+      url: pageUrl,
+      name: `Weather in ${cityName} — Live Forecast & 5-Day Outlook`,
+      description: `Current weather, hourly forecast, and 5-day outlook for ${cityName}. Updated every 30 minutes.`,
+      isPartOf: { '@id': `${SITE_URL}/#website` },
+      about: { '@id': `${pageUrl}/#place` },
+      breadcrumb: { '@id': `${pageUrl}/#breadcrumb` },
+      inLanguage: 'en-US',
+    },
+    {
+      '@type': 'Place',
+      '@id': `${pageUrl}/#place`,
+      name: cityName,
+      url: pageUrl,
+    },
+  ];
+
+  // Attach real geo + current observation only when API data is available
+  if (weather?.coord) {
+    const place = graph.find((n) => n['@type'] === 'Place') as Record<
+      string,
+      unknown
+    >;
+    place.geo = {
+      '@type': 'GeoCoordinates',
+      latitude: weather.coord.lat,
+      longitude: weather.coord.lon,
+    };
+  }
+
+  if (weather?.main && weather?.weather?.[0]) {
+    graph.push({
+      '@type': 'Observation',
+      '@id': `${pageUrl}/#observation`,
+      name: `Current weather in ${cityName}`,
+      description: weather.weather[0].description,
+      observationDate: weather.dt
+        ? new Date(weather.dt * 1000).toISOString()
+        : undefined,
+      measuredProperty: {
+        '@type': 'PropertyValue',
+        name: 'temperature',
+        value: weather.main.temp,
+        unitCode: 'CEL',
+      },
+      about: { '@id': `${pageUrl}/#place` },
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
+
 interface PageProps {
   params: Promise<{ city: string }>;
 }
@@ -163,14 +253,21 @@ export default async function CityWeatherPage({ params }: PageProps) {
   const { city: slug } = await params;
   const cityName = decodeCitySlug(slug);
   const { weather, forecast, error } = await fetchWeather(cityName);
+  const jsonLd = buildCityJsonLd(cityName, slug, weather);
 
   return (
-    <WeatherDisplay
-      city={cityName}
-      slug={slug}
-      weather={weather}
-      forecast={forecast}
-      error={error}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <WeatherDisplay
+        city={cityName}
+        slug={slug}
+        weather={weather}
+        forecast={forecast}
+        error={error}
+      />
+    </>
   );
 }
