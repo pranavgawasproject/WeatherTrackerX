@@ -61,12 +61,21 @@ export const metadata: Metadata = {
     title: 'WeatherTrackerX — Live Weather Forecast & 5-Day Outlook',
     description:
       'Live current conditions, hourly outlook, and 5-day forecast for any city worldwide. Updated every 30 minutes.',
+    images: [
+      {
+        url: `${SITE_URL}/vite.svg`,
+        width: 512,
+        height: 512,
+        alt: 'WeatherTrackerX — Live Weather Dashboard',
+      },
+    ],
   },
   twitter: {
     card: 'summary',
     title: 'WeatherTrackerX — Live Weather Forecast & 5-Day Outlook',
     description:
       'Live current conditions, hourly outlook, and 5-day forecast for any city worldwide.',
+    images: [`${SITE_URL}/vite.svg`],
   },
   alternates: {
     canonical: '/',
@@ -88,6 +97,7 @@ const jsonLd = {
       '@id': `${SITE_URL}/#organization`,
       name: 'WeatherTrackerX',
       url: `${SITE_URL}/`,
+      logo: `${SITE_URL}/vite.svg`,
       description:
         'Live weather dashboard for forecasts and historical data for any city.',
     },
